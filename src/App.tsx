@@ -1,7 +1,11 @@
-import React from "react";
+import { useAuth } from "./contexts/auth";
+
+import Pages from "./pages/Pages";
+import FakeLogin from "components/FakeLogin/FakeLogin";
 
 function App() {
-  return <div className="App"></div>;
+  const { isLoginned } = useAuth();
+  return isLoginned ? <Pages /> : <FakeLogin />;
 }
 
 export default App;
