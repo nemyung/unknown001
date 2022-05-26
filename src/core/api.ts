@@ -72,7 +72,8 @@ class _ClubAPI {
 
   public async detail(id: string) {
     const { data } = await this.instance.get<ResponseData>("/ePNAVU1sgGtQ/data");
-    return data;
+    const club = data.find(({ club }) => club.id === id);
+    return club;
   }
 }
 
