@@ -1,6 +1,6 @@
 import * as React from "react";
 import eqaul from "deep-equal";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import Filter from "./components/Filter";
 import Search from "./components/Search";
@@ -10,11 +10,16 @@ import ClubAPI from "core/api";
 import { ResponseData } from "core/types";
 
 function Main() {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const lastExtractedParamsRef = React.useRef<ConvertedURLSearchParams>();
 
   // TODO: improve this business flow logic for tiny async hook
   const [list, setList] = React.useState<ResponseData | null>(null);
+  const lastExtractedParamsRef = React.useRef<ConvertedURLSearchParams>();
+
+  const navigateToDetailPage = (id: string) => () => {
+    navigate(`./${id}`);
+  };
 
   React.useEffect(() => {
     const currentExtractedParams = extractURLParams(searchParams);
@@ -40,7 +45,13 @@ function Main() {
         <ul style={{ listStyle: "none", padding: 0 }}>
           {list?.map(({ club, leaders }) => {
             return (
-              <li key={club.id} style={{ padding: 0 }}>
+              <li
+                role="presentation"
+                onKeyUp={navigateToDetailPage(club.id)}
+                onClick={navigateToDetailPage(club.id)}
+                key={club.id}
+                style={{ padding: 0 }}
+              >
                 <div>
                   <div style={{ width: "100%" }}>
                     <img
