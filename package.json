@@ -11,6 +11,8 @@
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "axios": "^0.27.2",
+    "deep-equal": "^2.0.5",
+    "nanoid": "^3.3.4",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-router-dom": "6",
@@ -19,6 +21,7 @@
     "web-vitals": "^2.1.0"
   },
   "devDependencies": {
+    "@types/deep-equal": "^1.0.1",
     "@typescript-eslint/eslint-plugin": "^5.26.0",
     "@typescript-eslint/parser": "^5.26.0",
     "eslint": "^8.16.0",
