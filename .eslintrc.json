@@ -8,17 +8,20 @@
     "plugin:react-hooks/recommended",
     "plugin:jsx-a11y/recommended",
     "plugin:import/recommended",
-    "plugin:prettier/recommended",
-    "prettier/@typescript-eslint"
+    "plugin:prettier/recommended"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 2018,
+    "project": "./tsconfig.json",
     "ecmaFeatures": {
       "tsx": true
     }
   },
   "settings": {
+    "import/resolver": {
+      "typescript": {}
+    },
     "react": {
       "version": "detect"
     }
