@@ -12,8 +12,8 @@
 [X] The list should be shown by pagination
 
 ### Additional Requirements
-[] The App is responsive
+[X] The App is responsive
   - [] The pagination limits depends on screen width
 
 ### Style
-  - [] Whole UI must be implemented via emotion library.
+  - [X] Whole UI must be implemented via emotion library.
