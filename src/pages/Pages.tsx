@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Routes, Route } from "react-router-dom";
-import Main from "./main/Main";
-import Detail from "./detail/Detail";
+
+import { Main, Detail } from ".";
 
 function Pages() {
   return (

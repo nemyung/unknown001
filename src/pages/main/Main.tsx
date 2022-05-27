@@ -5,11 +5,10 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import eqaul from "deep-equal";
 
 import { Primitive } from "style";
-
-import Filter from "./components/Filter";
-import Search from "./components/Search";
+import { Filter, Search } from "./components";
 
 import ClubAPI from "core/api";
+
 import { ResponseData } from "core/types";
 
 import {

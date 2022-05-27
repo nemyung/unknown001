@@ -1,9 +1,10 @@
 import * as React from "react";
 import styled from "@emotion/styled";
-import { nanoid } from "nanoid";
 import { useSearchParams, createSearchParams } from "react-router-dom";
 
-import { Primitive } from "../../../style/";
+import { nanoid } from "nanoid";
+
+import { Primitive } from "style";
 
 import { extractURLParams, mergeParamsWithCurrentInfo } from "../helpers";
 

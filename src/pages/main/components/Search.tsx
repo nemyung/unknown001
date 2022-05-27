@@ -2,7 +2,7 @@ import * as React from "react";
 import styled from "@emotion/styled";
 import { createSearchParams, useSearchParams } from "react-router-dom";
 
-import { Primitive } from "../../../style";
+import { Primitive } from "style";
 
 import { extractURLParams, mergeParamsWithCurrentInfo } from "../helpers";
 
