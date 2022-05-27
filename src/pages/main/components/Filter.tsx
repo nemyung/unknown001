@@ -10,6 +10,7 @@ import { extractURLParams, mergeParamsWithCurrentInfo } from "../helpers";
 const Sticky = styled.div`
   position: sticky;
   top: 0;
+  z-index: 100;
 `;
 
 const Category = styled(Primitive.UL)`

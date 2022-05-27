@@ -9,12 +9,23 @@ import { extractURLParams, mergeParamsWithCurrentInfo } from "../helpers";
 const SearchInput = styled.input`
   display: inline-block;
   width: 100%;
+  max-width: 768px;
   height: 32px;
   margin: 16px 0px;
   padding: 0px 12px;
   font-weight: bold;
   border-radius: 10px;
   border: 1px solid black;
+
+  @media (min-width: 768px) {
+    display: block;
+    height: 70px;
+    padding: 0px 36px;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 48.5px;
+    font-size: 32px;
+  }
 `;
 
 const SEARCH_KEY = "searchFilter";

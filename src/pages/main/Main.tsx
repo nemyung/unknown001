@@ -11,11 +11,100 @@ import Search from "./components/Search";
 import ClubAPI from "core/api";
 import { ResponseData } from "core/types";
 
-import { ConvertedURLSearchParams, extractURLParams, getAPIFilterOption } from "./helpers";
+import {
+  ConvertedURLSearchParams,
+  extractURLParams,
+  getAPIFilterOption,
+  calculateStartDay,
+} from "./helpers";
 
-const Wrapper = styled(Primitive.Main)`
+const Grid = styled(Primitive.UL)`
   max-width: 1200px;
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  row-gap: 24px;
+  margin-bottom: 60px;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 0px 20px;
+    column-gap: 24px;
+    margin-bottom: 120px;
+  }
+
+  @media (min-width: 1200px) {
+    margin: auto;
+    margin-top: 64px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding: 0;
+    column-gap: 24px;
+    row-gap: 36px;
+    margin-bottom: 150px;
+  }
+
+  & li {
+    position: relative;
+    height: 100%;
+    border: 1px solid ${({ theme }) => theme.color.g[200]};
+    border-left: none;
+    border-right: none;
+    margin: auto;
+    padding-bottom: 16px;
+
+    @media (min-width: 768px) {
+      border-left: 1px solid ${({ theme }) => theme.color.g[200]};
+      border-right: 1px solid ${({ theme }) => theme.color.g[200]};
+    }
+  }
+
+  & img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    object-postiion: top center;
+  }
+
+  & div {
+    width: calc(100% - 20px);
+    height: auto;
+    margin: auto;
+    margin-top: 12px;
+    position: relative;
+
+    & > h2 {
+      color: ${({ theme }) => theme.color.g[300]};
+      font-size: ${({ theme }) => `${theme.fontSize[400]}px`};
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    & > h3 {
+      color: ${({ theme }) => theme.color.g[200]};
+      font-size: ${({ theme }) => `${theme.fontSize[200]}px`};
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    & > p {
+      line-height: 125%;
+      color: ${({ theme }) => theme.color.g[300]};
+      font-size: ${({ theme }) => `${theme.fontSize[100]}px`};
+      font-weight: 500;
+      margin-bottom: 36px;
+    }
+  }
+  & span {
+    font-weight: 700;
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    color: ${({ theme }) => theme.color.g[300]};
+    font-size: ${({ theme }) => `${theme.fontSize[100]}px`};
+  }
 `;
+
+const TABLET = 768;
+const DESKTOP = 1200;
 
 function Main() {
   const navigate = useNavigate();
@@ -24,7 +113,9 @@ function Main() {
   // TODO: improve this business flow logic for tiny async hook
   const [list, setList] = React.useState<ResponseData | null>(null);
   const [offset, setOffset] = React.useState(0);
-  const limitRef = React.useRef(6);
+  const limitRef = React.useRef(
+    window.innerWidth < TABLET ? 6 : window.innerWidth > DESKTOP ? 18 : 12
+  );
   const [hasNext, setHasNext] = React.useState(false);
   const lastExtractedParamsRef = React.useRef<ConvertedURLSearchParams>();
 
@@ -56,8 +147,6 @@ function Main() {
 
   React.useEffect(() => {
     function onResize() {
-      const TABLET = 768;
-      const DESKTOP = 1200;
       const width = window.innerWidth;
 
       if (width < TABLET) {
@@ -101,11 +190,11 @@ function Main() {
   }, [searchParams, offset]);
 
   return (
-    <Wrapper>
+    <main>
       <Filter>
         <Search />
         {
-          <ul style={{ listStyle: "none", padding: 0 }}>
+          <Grid>
             {list?.map(({ club, leaders }, i, { length }) => {
               return (
                 <li
@@ -114,40 +203,24 @@ function Main() {
                   onKeyUp={navigateToDetailPage(club.id)}
                   onClick={navigateToDetailPage(club.id)}
                   key={club.id}
-                  style={{ padding: 0 }}
                 >
+                  <img src={club.coverUrl} alt={`The club name: ${club.name}`} />
                   <div>
-                    <div style={{ width: "100%" }}>
-                      <img
-                        src={club.coverUrl}
-                        style={{ objectFit: "cover", maxHeight: "200px" }}
-                        alt={`The club name: ${club.name}`}
-                      />
-                      <h2>{club.name}</h2>
-                      {leaders.length > 0 && <h3>{leaders[0]["name"]}</h3>}
-                      <p>{club.description}</p>
-                    </div>
-                    <div>
-                      <span>{`${club.place} | 첫 모임일: ${tempCalculateDay(
-                        club.meetings[0].startedAt
-                      )}`}</span>
-                    </div>
+                    <h2>{club.name}</h2>
+                    {leaders.length > 0 && <h3>{leaders[0]["name"]}</h3>}
+                    <p>{club.description}</p>
                   </div>
+                  <span>{`${club.place} | 첫 모임일: ${calculateStartDay(
+                    club.meetings[0].startedAt
+                  )}`}</span>
                 </li>
               );
             })}
-          </ul>
+          </Grid>
         }
       </Filter>
-    </Wrapper>
+    </main>
   );
-}
-
-// TODO
-function tempCalculateDay(s: string) {
-  const ymd = s.split("T")[0];
-  const [y, m, d] = ymd.split("-");
-  return `${Number(m) > 10 ? m[1] : m}월 ${Number(d) > 10 ? d[1] : d}일`;
 }
 
 export default Main;

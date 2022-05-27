@@ -49,3 +49,10 @@ export function getAPIFilterOption(obj: ConvertedURLSearchParams) {
     return acc;
   }, {});
 }
+
+export function calculateStartDay(s: string) {
+  const ymd = s.split("T")[0];
+  const [_, m, d] = ymd.split("-");
+
+  return `${m}월 ${d}일`;
+}
