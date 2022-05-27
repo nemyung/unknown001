@@ -11,6 +11,9 @@ function ThemeProvider({ children }: { children: React.ReactNode }) {
       <Global
         styles={css`
           ${emotionReset}
+          *, *::before, *::after {
+            box-sizing: border-box;
+          }
         `}
       />
       {children}
