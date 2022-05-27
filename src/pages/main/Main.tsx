@@ -1,13 +1,15 @@
 import * as React from "react";
-import eqaul from "deep-equal";
 import { useNavigate, useSearchParams } from "react-router-dom";
+
+import eqaul from "deep-equal";
 
 import Filter from "./components/Filter";
 import Search from "./components/Search";
 
-import { ConvertedURLSearchParams, extractURLParams, getAPIFilterOption } from "./helpers";
 import ClubAPI from "core/api";
 import { ResponseData } from "core/types";
+
+import { ConvertedURLSearchParams, extractURLParams, getAPIFilterOption } from "./helpers";
 
 function Main() {
   const navigate = useNavigate();
@@ -15,27 +17,82 @@ function Main() {
 
   // TODO: improve this business flow logic for tiny async hook
   const [list, setList] = React.useState<ResponseData | null>(null);
+  const [offset, setOffset] = React.useState(0);
+  const limitRef = React.useRef(6);
+  const [hasNext, setHasNext] = React.useState(false);
   const lastExtractedParamsRef = React.useRef<ConvertedURLSearchParams>();
 
   const navigateToDetailPage = (id: string) => () => {
     navigate(`./${id}`);
   };
 
+  const lastElementRef = React.useCallback(
+    (node: HTMLElement | null) => {
+      if (!node) {
+        return;
+      }
+
+      const io = new IntersectionObserver(
+        ([entry], observer) => {
+          if (entry.isIntersecting) {
+            setOffset((prev) => prev + limitRef.current);
+            observer.unobserve(entry.target);
+          }
+        },
+        { root: null, threshold: 0 }
+      );
+      if (hasNext) {
+        io.observe(node);
+      }
+    },
+    [hasNext]
+  );
+
+  React.useEffect(() => {
+    function onResize() {
+      const TABLET = 768;
+      const DESKTOP = 1200;
+      const width = window.innerWidth;
+
+      if (width < TABLET) {
+        limitRef.current = 6;
+        return;
+      }
+
+      if (TABLET <= width && width < DESKTOP) {
+        limitRef.current = 9;
+        return;
+      }
+
+      if (DESKTOP <= width) {
+        limitRef.current = 18;
+        return;
+      }
+    }
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      window.removeEventListener("resize", onResize);
+    };
+  }, []);
+
   React.useEffect(() => {
     const currentExtractedParams = extractURLParams(searchParams);
-    if (
-      eqaul(lastExtractedParamsRef.current, currentExtractedParams) &&
-      Object.keys(currentExtractedParams).length > 0
-    ) {
-      return;
-    }
-    lastExtractedParamsRef.current = currentExtractedParams;
     const filterOption = getAPIFilterOption(currentExtractedParams);
 
     ClubAPI.listByFilter(filterOption).then((data) => {
-      setList(data);
+      if (eqaul(lastExtractedParamsRef.current, currentExtractedParams) && offset !== 0) {
+        const chunks = data.slice(offset, offset + limitRef.current);
+        setList((prev) => (prev ? prev.concat(chunks) : chunks));
+        setHasNext(offset + 1 < data.length);
+      } else {
+        lastExtractedParamsRef.current = currentExtractedParams;
+        setOffset(0);
+        setList(data.slice(0, limitRef.current));
+        setHasNext(1 < data.length);
+      }
     });
-  }, [searchParams]);
+  }, [searchParams, offset]);
 
   return (
     <>
@@ -43,9 +100,10 @@ function Main() {
       <Search />
       {
         <ul style={{ listStyle: "none", padding: 0 }}>
-          {list?.map(({ club, leaders }) => {
+          {list?.map(({ club, leaders }, i, { length }) => {
             return (
               <li
+                ref={i + 1 === length ? lastElementRef : null}
                 role="presentation"
                 onKeyUp={navigateToDetailPage(club.id)}
                 onClick={navigateToDetailPage(club.id)}
