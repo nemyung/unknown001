@@ -13,7 +13,7 @@
 
 ### Additional Requirements
 [X] The App is responsive
-  - [] The pagination limits depends on screen width
+  - [X] The pagination limits depends on screen width
 
 ### Style
   - [X] Whole UI must be implemented via emotion library.
