@@ -4,7 +4,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 
 import eqaul from "deep-equal";
 
-import * as Primitive from "../../style/primitives";
+import { Primitive } from "style";
+
 import Filter from "./components/Filter";
 import Search from "./components/Search";
 
@@ -57,13 +58,6 @@ const Grid = styled(Primitive.UL)`
     }
   }
 
-  & img {
-    width: 100%;
-    height: 250px;
-    object-fit: cover;
-    object-postiion: top center;
-  }
-
   & div {
     width: calc(100% - 20px);
     height: auto;
@@ -101,6 +95,10 @@ const Grid = styled(Primitive.UL)`
     color: ${({ theme }) => theme.color.g[300]};
     font-size: ${({ theme }) => `${theme.fontSize[100]}px`};
   }
+`;
+
+const Banner = styled(Primitive.IMG)`
+  height: 250px;
 `;
 
 const TABLET = 768;
@@ -204,7 +202,7 @@ function Main() {
                   onClick={navigateToDetailPage(club.id)}
                   key={club.id}
                 >
-                  <img src={club.coverUrl} alt={`The club name: ${club.name}`} />
+                  <Banner src={club.coverUrl} alt={`The club name: ${club.name}`} />
                   <div>
                     <h2>{club.name}</h2>
                     {leaders.length > 0 && <h3>{leaders[0]["name"]}</h3>}

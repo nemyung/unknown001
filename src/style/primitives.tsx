@@ -8,3 +8,8 @@ export const PaddingDiv = styled.div`
 `;
 export const Text = styled.span``;
 export const UL = styled.ul``;
+export const IMG = styled.img`
+  width: 100%;
+  object-fit: cover;
+  object-position: top center;
+`;
