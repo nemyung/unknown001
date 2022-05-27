@@ -1,7 +1,7 @@
 import React from "react";
 
-import { ThemeProvider as EmotionThemeProvider, Global, css } from "@emotion/react";
 import emotionReset from "emotion-reset";
+import { ThemeProvider as EmotionThemeProvider, Global, css } from "@emotion/react";
 
 import { theme } from "./theme";
 
@@ -10,8 +10,10 @@ function ThemeProvider({ children }: { children: React.ReactNode }) {
     <EmotionThemeProvider theme={theme}>
       <Global
         styles={css`
-          ${emotionReset}
-          *, *::before, *::after {
+          ${emotionReset};
+          *,
+          *::before,
+          *::after {
             box-sizing: border-box;
           }
         `}
@@ -21,4 +23,4 @@ function ThemeProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export { ThemeProvider };
+export default ThemeProvider;

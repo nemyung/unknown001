@@ -1,10 +1,12 @@
 import * as React from "react";
-import { getToken, setToken, removeToken } from "../../core/helpers";
+import { getToken, setToken, removeToken } from "core/helpers";
+
 import SETTING from "core/constants";
 
 type AuthenticationDisaptch = React.Dispatch<React.SetStateAction<boolean>>;
+
 interface AuthContextValue {
-  isLoginned: boolean;
+  isLogin: boolean;
   dispatch: AuthenticationDisaptch;
 }
 
@@ -12,11 +14,11 @@ const AuthContext = React.createContext<AuthContextValue | null>(null);
 AuthContext.displayName = "AuthContext";
 
 function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [isLoginned, dispatch] = React.useState(() =>
+  const [isLogin, dispatch] = React.useState(() =>
     typeof getToken() === "string" && Object.is(getToken(), SETTING.fakeAccessToken) ? true : false
   );
 
-  return <AuthContext.Provider value={{ isLoginned, dispatch }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ isLogin, dispatch }}>{children}</AuthContext.Provider>;
 }
 
 function useAuth() {

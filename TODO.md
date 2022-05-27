@@ -17,3 +17,12 @@
 
 ### Style
   - [X] Whole UI must be implemented via emotion library.
+
+### Refactor
+[X] Refactor paths alias
+
+[] Refactor operations
+
+[] Add test cases
+
+[] Refactor Types
