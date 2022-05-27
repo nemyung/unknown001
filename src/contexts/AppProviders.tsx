@@ -1,11 +1,14 @@
 import * as React from "react";
-import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./auth";
+import { BrowserRouter } from "react-router-dom";
+import { ThemeProvider } from "./theme/ThemeContext";
 
 function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <BrowserRouter>
-      <AuthProvider>{children}</AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>{children}</AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }
