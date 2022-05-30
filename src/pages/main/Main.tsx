@@ -194,8 +194,6 @@ function Main() {
     [hasNext]
   );
 
-  console.log(status);
-
   return (
     <main>
       <Filter>

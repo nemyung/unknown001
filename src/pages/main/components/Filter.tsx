@@ -105,7 +105,7 @@ function Filter({ children }: { children: React.ReactNode }) {
               {filterList.map((filter) => (
                 <li key={nanoid()}>
                   <button
-                    aria-label={`${currentCategory}의 ${filter}`}
+                    aria-label={`${currentCategory} 카테고리: ${filter}`}
                     onClick={handleFilterClick(filter)}
                   >
                     <span>{filter}</span>
@@ -113,7 +113,9 @@ function Filter({ children }: { children: React.ReactNode }) {
                 </li>
               ))}
               <li>
-                <button onClick={handleClose}>닫기</button>
+                <button aria-label="취소" onClick={handleClose}>
+                  닫기
+                </button>
               </li>
             </Select>
           </>
