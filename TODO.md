@@ -20,9 +20,7 @@
 
 ### Refactor
 [X] Refactor paths alias
-
-[] Refactor operations
+[X] Refactor Types
+[X] Refactor operations
 
 [] Add test cases
-
-[] Refactor Types
