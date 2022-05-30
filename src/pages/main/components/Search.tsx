@@ -4,7 +4,7 @@ import { createSearchParams, useSearchParams } from "react-router-dom";
 
 import { Primitive } from "style";
 
-import { extractURLParams, mergeParamsWithCurrentInfo } from "../helpers";
+import { mapQueryOption, mergeQueryOption } from "../helpers";
 
 const SearchInput = styled.input`
   display: inline-block;
@@ -36,15 +36,13 @@ function Search() {
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
     const isEnter = event.key === "Enter";
     const { value } = event.currentTarget;
-    if (!isEnter || !value) {
+    if (!isEnter) {
       return;
     }
-
-    const nextSearchParamInit = mergeParamsWithCurrentInfo(extractURLParams(searchParams), {
-      queryKey: SEARCH_KEY,
-      value: encodeURIComponent(value),
-    });
-    const nextSearchParams = createSearchParams(nextSearchParamInit);
+    const currentQueryOption = mapQueryOption(searchParams);
+    const selectedQueryOption = { queryKey: SEARCH_KEY, value: encodeURIComponent(value) } as const;
+    const nextQueryOption = mergeQueryOption(currentQueryOption, selectedQueryOption);
+    const nextSearchParams = createSearchParams(nextQueryOption);
     setSearchParams(nextSearchParams);
   };
 

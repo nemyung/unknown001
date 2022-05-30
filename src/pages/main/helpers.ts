@@ -1,44 +1,82 @@
 import { URLSearchParams } from "url";
 
-import type { Filter } from "../../core/types";
-export type ConvertedURLSearchParams = Record<string, string[]>;
+import type { FilterKeys, QueryOption } from "./types";
+import { Filter } from "core/types";
+
+function isQueryKeyVaild(key: string): key is FilterKeys {
+  return key === "searchFilter" || key === "type" || key === "place";
+}
 
 export function extractURLParams(searchParam: URLSearchParams) {
-  const result = {} as ConvertedURLSearchParams;
+  const result: QueryOption = {};
+
   for (const [key, value] of searchParam.entries()) {
-    if (result[key]) {
-      if (key === "searchFilter") {
-        continue;
-      }
-      result[key] = [...result[key], value];
-    } else {
-      result[key] = [value];
+    if (!isQueryKeyVaild(key)) {
+      continue;
     }
+    const existingValue = result[key];
+
+    if (existingValue === undefined) {
+      result[key] = [value];
+      continue;
+    }
+    result[key] = [...existingValue, value];
   }
+
   return result;
 }
 
-export function mergeParamsWithCurrentInfo(
-  previous: ConvertedURLSearchParams,
-  { queryKey, value }: { queryKey: "searchFilter" | "place" | "type"; value: string }
-): ConvertedURLSearchParams {
-  const result = Object.assign({}, previous);
+export function mapQueryOption(searchParam: URLSearchParams) {
+  const result: QueryOption = {};
 
-  if (previous[queryKey] === undefined) {
+  for (const [key, value] of searchParam.entries()) {
+    if (!isQueryKeyVaild(key)) {
+      continue;
+    }
+    const existingValue = result[key];
+
+    if (existingValue === undefined) {
+      result[key] = [value];
+      continue;
+    }
+    result[key] = [...existingValue, value];
+  }
+
+  return result;
+}
+
+export function mergeQueryOption(
+  previous: QueryOption,
+  { queryKey, value }: { queryKey: FilterKeys; value: string }
+): QueryOption {
+  const result: QueryOption = Object.assign({}, previous);
+  const previousValue = previous[queryKey];
+
+  if (queryKey === "searchFilter") {
+    if (value.length === 0) {
+      delete result[queryKey];
+    } else {
+      result[queryKey] = [value];
+    }
+
+    return result;
+  }
+
+  if (previousValue === undefined) {
     result[queryKey] = [value];
-  } else if (previous[queryKey].includes(value)) {
-    result[queryKey] =
-      queryKey === "searchFilter"
-        ? previous[queryKey]
-        : previous[queryKey].filter((f) => f !== value);
-  } else {
-    result[queryKey] = queryKey === "searchFilter" ? [value] : [...previous[queryKey], value];
+    return result;
   }
 
+  if (previousValue.includes(value)) {
+    result[queryKey] = previousValue.filter((f) => f !== value);
+    return result;
+  }
+
+  result[queryKey] = [...previousValue, value];
   return result;
 }
 
-export function getAPIFilterOption(obj: ConvertedURLSearchParams) {
+export function getAPIFilterOption(obj: Record<string, string[]>) {
   return Object.entries(obj).reduce((acc, [key, values]): Filter => {
     if (["searchFilter", "type", "place"].includes(key)) {
       return {

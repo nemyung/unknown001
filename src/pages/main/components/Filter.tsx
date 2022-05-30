@@ -6,7 +6,11 @@ import { nanoid } from "nanoid";
 
 import { Primitive } from "style";
 
-import { extractURLParams, mergeParamsWithCurrentInfo } from "../helpers";
+import { mapQueryOption, mergeQueryOption } from "../helpers";
+
+import { FILTERS_BY_CATEGORY, CATEGORIES } from "../constants";
+
+import type { CategoryType } from "../types";
 
 const Sticky = styled.div`
   position: sticky;
@@ -59,35 +63,22 @@ const Select = styled(Primitive.UL)`
   }
 `;
 
-const CATEGORIES = ["유형", "장소"] as const;
-const FILTERS_BY_CATEGORY = {
-  유형: {
-    queryKey: "type",
-    filterList: ["함께 만드는 클럽", "클럽장 클럽"],
-  },
-  장소: {
-    queryKey: "place",
-    filterList: ["안국", "강남", "롯데백화점 잠실점 문화센터", "온라인"],
-  },
-} as const;
-
 function Filter({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [currentCategory, setCurrentCategory] = React.useState<"유형" | "장소">("유형");
+  const [currentCategory, setCurrentCategory] = React.useState<CategoryType>("유형");
   const { queryKey, filterList } = FILTERS_BY_CATEGORY[currentCategory];
 
-  const handleCategoryClick = (nextCategory: "유형" | "장소") => () => {
+  const handleCategoryClick = (nextCategory: CategoryType) => () => {
     setIsOpen(true);
     setCurrentCategory(nextCategory);
   };
 
   const handleFilterClick = (nextFilter: string) => () => {
-    const nextSearchParamsInit = mergeParamsWithCurrentInfo(extractURLParams(searchParams), {
-      queryKey,
-      value: encodeURIComponent(nextFilter),
-    });
-    const nextSearchParams = createSearchParams(nextSearchParamsInit);
+    const currentQueryOption = mapQueryOption(searchParams);
+    const selectedQueryOption = { queryKey, value: encodeURIComponent(nextFilter) };
+    const nextQueryOption = mergeQueryOption(currentQueryOption, selectedQueryOption);
+    const nextSearchParams = createSearchParams(nextQueryOption);
     setSearchParams(nextSearchParams);
     setIsOpen(false);
   };
@@ -100,9 +91,11 @@ function Filter({ children }: { children: React.ReactNode }) {
     <Primitive.Section>
       <Sticky>
         <Category>
-          {CATEGORIES.map((category, i) => (
+          {CATEGORIES.map((category) => (
             <li key={nanoid()}>
-              <button onClick={handleCategoryClick(category)}>{category}</button>
+              <button aria-label={`${category} 카테고리`} onClick={handleCategoryClick(category)}>
+                {category}
+              </button>
             </li>
           ))}
         </Category>
@@ -111,7 +104,10 @@ function Filter({ children }: { children: React.ReactNode }) {
             <Select>
               {filterList.map((filter) => (
                 <li key={nanoid()}>
-                  <button onClick={handleFilterClick(filter)}>
+                  <button
+                    aria-label={`${currentCategory}의 ${filter}`}
+                    onClick={handleFilterClick(filter)}
+                  >
                     <span>{filter}</span>
                   </button>
                 </li>

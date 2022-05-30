@@ -11,12 +11,8 @@ import ClubAPI from "core/api";
 
 import { ResponseData } from "core/types";
 
-import {
-  ConvertedURLSearchParams,
-  extractURLParams,
-  getAPIFilterOption,
-  calculateStartDay,
-} from "./helpers";
+import { extractURLParams, getAPIFilterOption, calculateStartDay, mapQueryOption } from "./helpers";
+import { QueryOption } from "./types";
 
 const Grid = styled(Primitive.UL)`
   max-width: 1200px;
@@ -106,6 +102,7 @@ const DESKTOP = 1200;
 function Main() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const lastQueryOption = React.useRef<QueryOption>(mapQueryOption(searchParams));
 
   // TODO: improve this business flow logic for tiny async hook
   const [list, setList] = React.useState<ResponseData | null>(null);
@@ -113,8 +110,8 @@ function Main() {
   const limitRef = React.useRef(
     window.innerWidth < TABLET ? 6 : window.innerWidth > DESKTOP ? 18 : 12
   );
+
   const [hasNext, setHasNext] = React.useState(false);
-  const lastExtractedParamsRef = React.useRef<ConvertedURLSearchParams>();
 
   const navigateToDetailPage = (id: string) => () => {
     navigate(`./${id}`);
@@ -143,6 +140,10 @@ function Main() {
   );
 
   React.useEffect(() => {
+    console.log(mapQueryOption(searchParams));
+  }, [searchParams]);
+
+  React.useEffect(() => {
     function onResize() {
       const width = window.innerWidth;
 
@@ -168,23 +169,23 @@ function Main() {
     };
   }, []);
 
-  React.useEffect(() => {
-    const currentExtractedParams = extractURLParams(searchParams);
-    const filterOption = getAPIFilterOption(currentExtractedParams);
+  // React.useEffect(() => {
+  //   const currentExtractedParams = extractURLParams(searchParams);
+  //   const filterOption = getAPIFilterOption(currentExtractedParams);
 
-    ClubAPI.listByFilter(filterOption).then((data) => {
-      if (eqaul(lastExtractedParamsRef.current, currentExtractedParams) && offset !== 0) {
-        const chunks = data.slice(offset, offset + limitRef.current);
-        setList((prev) => (prev ? prev.concat(chunks) : chunks));
-        setHasNext(offset + 1 < data.length);
-      } else {
-        lastExtractedParamsRef.current = currentExtractedParams;
-        setOffset(0);
-        setList(data.slice(0, limitRef.current));
-        setHasNext(1 < data.length);
-      }
-    });
-  }, [searchParams, offset]);
+  //   ClubAPI.listByFilter(filterOption).then((data) => {
+  //     if (eqaul(lastExtractedParamsRef.current, currentExtractedParams) && offset !== 0) {
+  //       const chunks = data.slice(offset, offset + limitRef.current);
+  //       setList((prev) => (prev ? prev.concat(chunks) : chunks));
+  //       setHasNext(offset + 1 < data.length);
+  //     } else {
+  //       lastExtractedParamsRef.current = currentExtractedParams;
+  //       setOffset(0);
+  //       setList(data.slice(0, limitRef.current));
+  //       setHasNext(1 < data.length);
+  //     }
+  //   });
+  // }, [searchParams, offset]);
 
   return (
     <main>
