@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
+import { QueryOption } from "pages/main/types";
 
 import { getToken } from "./helpers";
 
@@ -27,12 +28,12 @@ class _ClubAPI {
     return config;
   }
 
-  public async listByFilter(filter: Filter) {
+  public async listByFilter(filter: QueryOption) {
     const { data } = await this.instance.get<ResponseData>("/ePNAVU1sgGtQ/data");
     return this.filter(data, filter);
   }
 
-  public filter(data: ResponseData, filter: Filter) {
+  public filter(data: ResponseData, filter: QueryOption) {
     const filterEntries = Object.entries(filter).filter(([_, value]) => Boolean(value));
     let mutationResult = data;
 

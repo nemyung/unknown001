@@ -7,25 +7,6 @@ function isQueryKeyVaild(key: string): key is FilterKeys {
   return key === "searchFilter" || key === "type" || key === "place";
 }
 
-export function extractURLParams(searchParam: URLSearchParams) {
-  const result: QueryOption = {};
-
-  for (const [key, value] of searchParam.entries()) {
-    if (!isQueryKeyVaild(key)) {
-      continue;
-    }
-    const existingValue = result[key];
-
-    if (existingValue === undefined) {
-      result[key] = [value];
-      continue;
-    }
-    result[key] = [...existingValue, value];
-  }
-
-  return result;
-}
-
 export function mapQueryOption(searchParam: URLSearchParams) {
   const result: QueryOption = {};
 

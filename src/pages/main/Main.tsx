@@ -4,6 +4,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 
 import eqaul from "deep-equal";
 
+import useAsync, { State } from "hooks/useAsync";
+
 import { Primitive } from "style";
 import { Filter, Search } from "./components";
 
@@ -11,7 +13,7 @@ import ClubAPI from "core/api";
 
 import { ResponseData } from "core/types";
 
-import { extractURLParams, getAPIFilterOption, calculateStartDay, mapQueryOption } from "./helpers";
+import { getAPIFilterOption, calculateStartDay, mapQueryOption } from "./helpers";
 import { QueryOption } from "./types";
 
 const Grid = styled(Primitive.UL)`
@@ -102,46 +104,42 @@ const DESKTOP = 1200;
 function Main() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const lastQueryOption = React.useRef<QueryOption>(mapQueryOption(searchParams));
+  const { state, run } = useAsync<ResponseData>();
+  const { status, data, error } = state;
 
-  // TODO: improve this business flow logic for tiny async hook
-  const [list, setList] = React.useState<ResponseData | null>(null);
   const [offset, setOffset] = React.useState(0);
   const limitRef = React.useRef(
     window.innerWidth < TABLET ? 6 : window.innerWidth > DESKTOP ? 18 : 12
   );
+  const [hasNext, setHasNext] = React.useState(true);
 
-  const [hasNext, setHasNext] = React.useState(false);
-
-  const navigateToDetailPage = (id: string) => () => {
-    navigate(`./${id}`);
-  };
-
-  const lastElementRef = React.useCallback(
-    (node: HTMLElement | null) => {
-      if (!node) {
-        return;
-      }
-
-      const io = new IntersectionObserver(
-        ([entry], observer) => {
-          if (entry.isIntersecting) {
-            setOffset((prev) => prev + limitRef.current);
-            observer.unobserve(entry.target);
-          }
-        },
-        { root: null, threshold: 0 }
-      );
-      if (hasNext) {
-        io.observe(node);
-      }
-    },
-    [hasNext]
-  );
+  const lastQueryOptionRef = React.useRef<QueryOption>(mapQueryOption(searchParams));
 
   React.useEffect(() => {
-    console.log(mapQueryOption(searchParams));
-  }, [searchParams]);
+    if (!hasNext) {
+      return;
+    }
+
+    const filterOption = mapQueryOption(searchParams);
+    const isEqualFilter = eqaul(lastQueryOptionRef.current, filterOption);
+
+    const promise = ClubAPI.listByFilter(getAPIFilterOption(filterOption)).then((data) => {
+      lastQueryOptionRef.current = filterOption;
+      if (isEqualFilter && offset === 0) {
+        setOffset(0);
+        setHasNext(1 < data.length);
+        return data.slice(0, limitRef.current);
+      }
+
+      setHasNext(offset + 1 < data.length);
+      return (state: State<ResponseData>) =>
+        Array.isArray(state.data)
+          ? state.data.concat(data.slice(offset, offset + limitRef.current))
+          : data;
+    });
+
+    run(promise, isEqualFilter && offset === 0);
+  }, [searchParams, offset, run, hasNext]);
 
   React.useEffect(() => {
     function onResize() {
@@ -169,23 +167,31 @@ function Main() {
     };
   }, []);
 
-  // React.useEffect(() => {
-  //   const currentExtractedParams = extractURLParams(searchParams);
-  //   const filterOption = getAPIFilterOption(currentExtractedParams);
+  const navigateToDetailPage = (id: string) => () => {
+    navigate(`./${id}`);
+  };
 
-  //   ClubAPI.listByFilter(filterOption).then((data) => {
-  //     if (eqaul(lastExtractedParamsRef.current, currentExtractedParams) && offset !== 0) {
-  //       const chunks = data.slice(offset, offset + limitRef.current);
-  //       setList((prev) => (prev ? prev.concat(chunks) : chunks));
-  //       setHasNext(offset + 1 < data.length);
-  //     } else {
-  //       lastExtractedParamsRef.current = currentExtractedParams;
-  //       setOffset(0);
-  //       setList(data.slice(0, limitRef.current));
-  //       setHasNext(1 < data.length);
-  //     }
-  //   });
-  // }, [searchParams, offset]);
+  const lastElementRef = React.useCallback(
+    (node: HTMLElement | null) => {
+      if (!node) {
+        return;
+      }
+
+      const io = new IntersectionObserver(
+        ([entry], observer) => {
+          if (entry.isIntersecting) {
+            setOffset((prev) => prev + limitRef.current);
+            observer.unobserve(entry.target);
+          }
+        },
+        { root: null, threshold: 0 }
+      );
+      if (hasNext) {
+        io.observe(node);
+      }
+    },
+    [hasNext]
+  );
 
   return (
     <main>
@@ -193,7 +199,7 @@ function Main() {
         <Search />
         {
           <Grid>
-            {list?.map(({ club, leaders }, i, { length }) => {
+            {data?.map(({ club, leaders }, i, { length }) => {
               return (
                 <li
                   ref={i + 1 === length ? lastElementRef : null}
