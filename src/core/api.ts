@@ -30,6 +30,7 @@ class _ClubAPI {
 
   public async listByFilter(filter: QueryOption) {
     const { data } = await this.instance.get<ResponseData>("/ePNAVU1sgGtQ/data");
+    await new Promise((resolve) => setTimeout(resolve, 2500));
     return this.filter(data, filter);
   }
 

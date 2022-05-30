@@ -7,7 +7,8 @@ import eqaul from "deep-equal";
 import useAsync, { State } from "hooks/useAsync";
 
 import { Primitive } from "style";
-import { Filter, Search } from "./components";
+import { Filter, Search, TinyToast } from "./components";
+import { ReactComponent as Spinner } from "assets/icons/spinner.svg";
 
 import ClubAPI from "core/api";
 
@@ -193,11 +194,15 @@ function Main() {
     [hasNext]
   );
 
+  console.log(status);
+
   return (
     <main>
       <Filter>
         <Search />
-        {
+        {status === "loading" ? (
+          <Spinner />
+        ) : (
           <Grid>
             {data?.map(({ club, leaders }, i, { length }) => {
               return (
@@ -221,8 +226,9 @@ function Main() {
               );
             })}
           </Grid>
-        }
+        )}
       </Filter>
+      <TinyToast show={status === "fetching"} />
     </main>
   );
 }
